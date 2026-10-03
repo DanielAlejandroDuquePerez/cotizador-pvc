@@ -29,7 +29,7 @@ st.markdown("""
         padding: 1.2rem;
         border-radius: 16px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .main-header h2 {
         margin: 0;
@@ -43,16 +43,34 @@ st.markdown("""
         color: #94a3b8;
     }
 
-    /* Targetas de métricas clave (Totales) */
+    /* Targetas de métricas clave (Fondo oscuro adaptado al tema con alto contraste) */
     [data-testid="stMetric"] {
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px 16px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+        border-radius: 12px !important;
+        padding: 14px 16px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    }
+
+    /* Forzar visibilidad y legibilidad de textos en las métricas */
+    [data-testid="stMetricLabel"] {
+        color: #94a3b8 !important; /* Gris claro legible para el título */
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+    }
+
+    [data-testid="stMetricValue"] {
+        color: #38bdf8 !important; /* Azul celeste vibrante para la cifra principal */
+        font-size: 1.6rem !important;
+        font-weight: 700 !important;
+    }
+
+    [data-testid="stMetricDelta"] {
+        color: #4ade80 !important; /* Verde claro para el texto delta */
+        font-weight: 600 !important;
     }
     
-    /* Botón principal adaptado a pulgares */
+    /* Botón principal táctil */
     div.stButton > button:first-child {
         width: 100%;
         border-radius: 12px;
@@ -62,10 +80,10 @@ st.markdown("""
         background-color: #2563eb;
         color: white;
         border: none;
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
     }
     
-    /* Ocultar elementos innecesarios de la interfaz predeterminada */
+    /* Ocultar elementos predeterminados */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
