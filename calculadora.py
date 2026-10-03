@@ -3,46 +3,44 @@ import io
 import pandas as pd
 
 def calcular_cotizacion_pvc(area: float, opcion_thermo: str):
-    # Precios unitarios base
-    PRECIO_LAMINA = 27000       # Rendimiento aprox: 1.75 m² por lámina
-    PRECIO_MOLDURA = 16000      # Tira de 6m
-    PRECIO_OMEGA = 4000         # Perfil Omega
-    PRECIO_VIGUETA = 4000       # Perfil Vigueta
-    PRECIO_TORNILLO_AVENA = 50  # Ensamble metal-metal / lámina
-    PRECIO_TORNILLO_CHAZO = 150 # Fijación a placa/concreto
+    # Precios unitarios
+    PRECIO_LAMINA = 27000
+    PRECIO_MOLDURA = 16000
+    PRECIO_OMEGA = 4000
+    PRECIO_VIGUETA = 4000
+    PRECIO_TORNILLO_LENTEJA = 50   # Tornillo Avena / Lenteja
+    PRECIO_TORNILLO_ESTRUCTURA = 150 # Tornillo Estructura / Concreto
     
     PRECIOS_THERMO = {
         "Ninguno": 0,
-        "5mm": 3500,  # precio por m²
-        "8mm": 5000   # precio por m²
+        "5mm": 3500,
+        "8mm": 5000
     }
-    PRECIO_CINTA = 12000       # Rollo de cinta para aislamiento
+    PRECIO_CINTA = 12000
 
-    # 1. Cálculos de Estructura Principal
+    # 1. Estructura y Perfiles
     cant_laminas_base = math.ceil(area / 1.75)
     perimetro_m = math.ceil(math.sqrt(area) * 4)
     cant_moldura_base = math.ceil(perimetro_m / 6)
     cant_omegas_base = math.ceil(area * 0.8)
     cant_viguetas_base = math.ceil(area * 0.4)
 
-    # Cantidades sugeridas para estructura (con holgura)
     cant_laminas_sug = math.ceil(cant_laminas_base * 1.12)
     cant_moldura_sug = math.ceil(cant_moldura_base * 1.15)
     cant_omegas_sug = math.ceil(cant_omegas_base * 1.08)
     cant_viguetas_sug = math.ceil(cant_viguetas_base * 1.08)
 
-    # 2. Cálculos de Tornillería (Distribución Mitad y Mitad)
-    # Total de tornillos de estructura (Avena / Lenteja)
-    total_tornillos_avena = math.ceil(area * 20)
-    cant_tornillos_avena_base = math.ceil(total_tornillos_avena / 2)
-    cant_tornillos_avena_sug = total_tornillos_avena  # La otra mitad completa el total con margen
+    # 2. Tornillería (Fórmula: Área * 18, repartido mitad y mitad)
+    total_tornillos_base = math.ceil(area * 18)
+    mitad_tornillos_base = math.ceil(total_tornillos_base / 2)  # área * 9
 
-    # Total de tornillos para concreto / chazos
-    total_tornillos_chazo = math.ceil(area * 8)
-    cant_tornillos_chazo_base = math.ceil(total_tornillos_chazo / 2)
-    cant_tornillos_chazo_sug = total_tornillos_chazo  # La otra mitad completa el total con margen
+    cant_lenteja_base = mitad_tornillos_base
+    cant_lenteja_sug = math.ceil(cant_lenteja_base * 1.10)  # +10% de margen
 
-    # 3. Construcción de la Lista de ítems
+    cant_estructura_base = mitad_tornillos_base
+    cant_estructura_sug = math.ceil(cant_estructura_base * 1.10)  # +10% de margen
+
+    # 3. Lista de Items
     items = [
         {
             "Material": "Láminas de PVC",
@@ -77,20 +75,20 @@ def calcular_cotizacion_pvc(area: float, opcion_thermo: str):
             "Total Sugerido": cant_viguetas_sug * PRECIO_VIGUETA
         },
         {
-            "Material": "Tornillos Avena / Lenteja (Estructura)",
-            "Cant. Base": cant_tornillos_avena_base,
-            "Cant. Sugerida": cant_tornillos_avena_sug,
-            "P. Unitario": PRECIO_TORNILLO_AVENA,
-            "Total Base": cant_tornillos_avena_base * PRECIO_TORNILLO_AVENA,
-            "Total Sugerido": cant_tornillos_avena_sug * PRECIO_TORNILLO_AVENA
+            "Material": "Tornillo Lenteja / Avena",
+            "Cant. Base": cant_lenteja_base,
+            "Cant. Sugerida": cant_lenteja_sug,
+            "P. Unitario": PRECIO_TORNILLO_LENTEJA,
+            "Total Base": cant_lenteja_base * PRECIO_TORNILLO_LENTEJA,
+            "Total Sugerido": cant_lenteja_sug * PRECIO_TORNILLO_LENTEJA
         },
         {
-            "Material": "Tornillos para Concreto / Chazos",
-            "Cant. Base": cant_tornillos_chazo_base,
-            "Cant. Sugerida": cant_tornillos_chazo_sug,
-            "P. Unitario": PRECIO_TORNILLO_CHAZO,
-            "Total Base": cant_tornillos_chazo_base * PRECIO_TORNILLO_CHAZO,
-            "Total Sugerido": cant_tornillos_chazo_sug * PRECIO_TORNILLO_CHAZO
+            "Material": "Tornillo Estructura / Concreto",
+            "Cant. Base": cant_estructura_base,
+            "Cant. Sugerida": cant_estructura_sug,
+            "P. Unitario": PRECIO_TORNILLO_ESTRUCTURA,
+            "Total Base": cant_estructura_base * PRECIO_TORNILLO_ESTRUCTURA,
+            "Total Sugerido": cant_estructura_sug * PRECIO_TORNILLO_ESTRUCTURA
         }
     ]
 
@@ -128,15 +126,3 @@ def calcular_cotizacion_pvc(area: float, opcion_thermo: str):
         "total_base": total_base,
         "total_sugerido": total_sugerido
     }
-
-def generar_excel_cotizacion(resultado, area):
-    output = io.BytesIO()
-    df = pd.DataFrame(resultado["items"])
-    with pd.ExcelWriter(output, engine="openpyxl") as writer:
-        df.to_excel(writer, sheet_name="Cotizacion", index=False)
-    return output.getvalue()
-
-def generar_pdf_cotizacion(resultado, area):
-    output = io.BytesIO()
-    output.write(b"%PDF-1.4 ... Cotizacion PDF ...")
-    return output.getvalue()
