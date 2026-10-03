@@ -6,18 +6,15 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 
 def generar_excel_cotizacion(resultado: dict, area_m2: float) -> bytes:
-    """Genera un archivo Excel (.xlsx) en memoria con el desglose de la cotización."""
     wb = Workbook()
     ws = wb.active
     ws.title = "Cotización"
 
-    # Encabezados
     ws.append(["COTIZACIÓN DE CIELO RASO EN PVC"])
     ws.append([f"Área a cubrir: {area_m2} m²"])
     ws.append([])
     ws.append(["Material", "Cant. Base", "Cant. Sugerida", "P. Unitario", "Total Base", "Total Sugerido"])
 
-    # Filas de ítems
     for item in resultado["items"]:
         ws.append([
             item["Material"],
@@ -28,7 +25,6 @@ def generar_excel_cotizacion(resultado: dict, area_m2: float) -> bytes:
             item["Total Sugerido"]
         ])
 
-    # Totales
     ws.append([])
     ws.append(["TOTAL BASE", "", "", "", "", resultado["total_base"]])
     ws.append(["TOTAL CON ADICIONES", "", "", "", "", resultado["total_sugerido"]])
@@ -39,7 +35,6 @@ def generar_excel_cotizacion(resultado: dict, area_m2: float) -> bytes:
 
 
 def generar_pdf_cotizacion(resultado: dict, area_m2: float) -> bytes:
-    """Genera un archivo PDF ajustado en memoria con el desglose de la cotización."""
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
     elements = []
@@ -52,7 +47,6 @@ def generar_pdf_cotizacion(resultado: dict, area_m2: float) -> bytes:
     elements.append(Paragraph(f"Área a cubrir: {area_m2} m²", subtitle_style))
     elements.append(Spacer(1, 12))
 
-    # Construcción de la tabla
     data = [["Material", "Cant. Base", "Cant. Sug.", "P. Unitario", "Total Base", "Total Sug."]]
     for item in resultado["items"]:
         data.append([
